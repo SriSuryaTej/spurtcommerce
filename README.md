@@ -171,5 +171,5 @@ npm run build
 ```
 sudo cp /dist/browser/* /var/www/html
 ```
-*After copying successfully, open browser and give http://public_ip_address You will be able to check the store.
+*After copying successfully, open browser and give `http://public_ip_address` You will be able to check the store 🙂.
 
