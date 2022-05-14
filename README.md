@@ -2,7 +2,7 @@
 ## Downloading SpurtCommerce Zip file
 * Downloading spurtcommerce from git hub using the below command in server root (/home/ubuntu)
 ```
-git clone 
+git clone https://github.com/SriSuryaTej/spurtcommerce.git
 ```
 * Install Unzip Using the following command
 ```
