@@ -10,7 +10,7 @@ sudo apt install unzip -y
 ```
 * Unzipping spurtcommerce zip file
 ```
-unzip ***.zip
+unzip Spurtcommerce.zip
 ```
 ## Node Js Installation (Version — 14.x)
 * The Back-end API of Spurtcommerce is on NodeJS (v.14.x). 
