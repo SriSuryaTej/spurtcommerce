@@ -37,7 +37,7 @@ unzip Spurtcommerce.zip
  sudo apt update
 ```
 ```
-* sudo apt install apache2 -y
+ sudo apt install apache2 -y
 ```
 * you have to enable additional apache modules for Spurtcommerce deployment.
 ```
