@@ -15,46 +15,46 @@ unzip Spurtcommerce.zip
 ## Node Js Installation (Version — 14.x)
 * The Back-end API of Spurtcommerce is on NodeJS (v.14.x). 
 ```
-* curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+ curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 ```
 ```
-* sudo apt-get install -y nodejs
+ sudo apt-get install -y nodejs
 ```
 ```
-* sudo apt-get install -y build-essential
+ sudo apt-get install -y build-essential
 ```
 * some of the additional dependencies software are required for Spurtcommerce
 ```
-* sudo npm install forever -g
+ sudo npm install forever -g
 ```
 ```
-* sudo npm install apidoc -g
+ sudo npm install apidoc -g
 ```
 
 ## Apache Installation
 * Spurtcommerce deployment requires one of the web servers.
 ```
-* sudo apt update
+ sudo apt update
 ```
 ```
 * sudo apt install apache2 -y
 ```
 * you have to enable additional apache modules for Spurtcommerce deployment.
 ```
-* sudo a2enmod proxy
+ sudo a2enmod proxy
 ```
 ```
-* sudo a2enmod proxy_http
+ sudo a2enmod proxy_http
 ```
 ```
-* sudo a2enmod headers
+ sudo a2enmod headers
 ```
 ```
-* sudo systemctl restart apache2
+ sudo systemctl restart apache2
 ```
 * Reverse Proxy Configuration of apache2 webserver.
 ```
-*  sudo nano /etc/apache2/sites-available/000-default.conf 
+  sudo nano /etc/apache2/sites-available/000-default.conf 
 ```
    — Add This Code in the above default.conf file
 ```
@@ -102,7 +102,10 @@ sudo mysql -u root
 ```
  exit;
  ```
-* import your sql file and set your root
+* import your sql file and set your root (do this where the file spurtcommerce.sql is present )
+```
+sudo mysql -u root
+```
 ```
   mysql> sudo mysql -u root -p spurtcommerce < spurtcommerce.sql  
 ```
