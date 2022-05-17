@@ -1,0 +1,160 @@
+---
+- name: Installig SpurtCommerce
+  hosts: all
+  become: yes
+  tasks:
+  # SpurtCommerce Zip file & Required Packages
+    - name: Creating a directory
+      file:
+        path: /home/anisble/ecommerce
+        state: directory
+
+    - name: Downloading spurtcommerce zip file
+      git:
+        repo: https://github.com/SriSuryaTej/spurtcommerce.git
+        clone: yes
+        dest : /home/ansible/ecommerce
+        update: yes
+    - name: Installing required Packages
+      apt:
+        name: " {{ item }} "
+        state: present
+      with_items:
+        - unzip
+        - apache2
+        - python3-pip
+        - mysql-server
+        - libmysqlclient-dev
+        - python3-dev
+        - python3-mysqldb
+        - imagemagick
+    - name: Unzipping the zip file
+      unarchive:
+        src: /home/ansible/ecommerce/Spurtcommerce.zip
+        dest: /home/ansible/ecommerce/
+        remote_src: yes
+    - name: enabling proxy related modules
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - proxy
+        - proxy_http
+        - headers
+    - name: copying .conf file to apache home directory
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items:
+        - { src: files/000-default.conf, dest: /etc/apache2/sites-available/ }
+        - { src: files/.env, dest: ecommerce/Spurtcommerce_3.0.2_community_LTS/api/ }
+        - { src: files/.env.production, dest: ecommerce/Spurtcommerce_3.0.2_community_LTS/api/ }
+        - { src: files/environment.ts, dest: ecommerce/Spurtcommerce_3.0.2_community_LTS/store/src/environments/ }
+        - { src: files/environment.prod.ts, dest: ecommerce/Spurtcommerce_3.0.2_community_LTS/store/src/environments/ }
+    - name: Deleting unnecessary files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /ecommerce/*.zip
+        - /ecommerce/__*
+
+  # NodeJs
+    - name: Script to install the NodeSource Node.js 14.x repo onto a Debian or Ubuntu system.
+      shell: " curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - "
+    - name: Installing nodejs
+      apt:
+        name:
+          - nodejs
+          - build-essential
+        update_cache: yes
+        state: present
+    - name: Installing required softwares to forever running of appilication
+      npm:
+        name: "{{ item }}"
+        global: yes
+        state: present
+      with_items:
+        - forever
+        - apidoc
+
+  # Apache2
+    - name: enabling proxy related modules
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - proxy
+        - proxy_http
+        - headers
+
+  # MySql
+    - name: Creating password for the default user
+      mysql_user:
+        name: root
+        host: localhost
+        password: Suryatej@123
+        login_user: root
+        login_password: Suryatej@123
+        state: present
+    - name: Creating database spurtcommerce
+      mysql_db:
+        login_user: root
+        login_password: Suryatej@123
+        name: spurtcommerce
+        state: present
+    - name: Importing spurtcommerce.sql to mysql
+      mysql_db:
+        name: spurtcommerce
+        state: import
+        login_user: root
+        login_password: Suryatej@123
+        target: /home/ansible/ecommerce/Spurtcommerce_3.0.2_community_LTS/spurtcommerce.sql
+      ignore_errors: yes
+
+  # Angular
+    - name: Installing angular
+      command: 'npm install -g @angular/cli'
+
+# SpurtCommerce Backend API setup
+    - name: changing bcrypt version in package.json
+      replace:
+        path: /home/ansible/ecommerce/Spurtcommerce_3.0.2_community_LTS/api/package.json
+        regexp: "3.0.1"
+        replace: "5.0.1"
+
+    - name: Installing dependencies based on package.json
+      command: 'npm install'
+      args:
+        chdir: ecommerce/Spurtcommerce_3.0.2_community_LTS/api/
+    - name:
+      npm:
+        name: typeorm-seeding
+        version: 1.0.0-beta.6
+        path: ecommerce/Spurtcommerce_3.0.2_community_LTS/api/
+    - name: Build app
+      command: 'npm run build'
+      args:
+        chdir: ecommerce/Spurtcommerce_3.0.2_community_LTS/api/
+    - name: Running Api in Backgroung forever
+      command: 'sudo NODE_ENV=production forever start dist/app.js'
+      args:
+        chdir: ecommerce/Spurtcommerce_3.0.2_community_LTS/api/
+
+# FrontEnd Store Setup
+    - name: Installing dependencies based on package.json
+      npm:
+        path: spurtcommerce/spurtcommerce/store/
+    - name: Build app
+      command: npm run build
+      args:
+        chdir: spurtcommerce/spurtcommerce/store/
+    - name:
+      file:
+        path: "{{ item }}"
+        dest: /var/www/html/
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+      with_items:
+        - /spurtcommerce/spurtcommerce/store/dist/browser/*
